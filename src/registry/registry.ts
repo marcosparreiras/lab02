@@ -5,9 +5,9 @@ interface Registries {
   userRepository: UserRepository | null;
 }
 
-export class Registy {
+export class Registry {
   private registries: Registries;
-  private static instance: Registy;
+  private static instance: Registry;
 
   private constructor() {
     this.registries = {
@@ -15,9 +15,9 @@ export class Registy {
     };
   }
 
-  public static getInstance(): Registy {
+  public static getInstance(): Registry {
     if (!this.instance) {
-      this.instance = new Registy();
+      this.instance = new Registry();
     }
     return this.instance;
   }

@@ -2,7 +2,7 @@ import { InMemoryUserRepository } from "../adapters/in-memory-user-repository";
 import { User } from "../entities/user";
 import { InvalidEmailException } from "../exceptions/invalid-email-exception";
 import { UserAlreadyExistsException } from "../exceptions/user-already-exists-exception";
-import { Registy } from "../registry/registry";
+import { Registry } from "../registry/registry";
 import { CreateUserUseCase } from "./create-user-use-case";
 
 describe("CreateUserUseCase", () => {
@@ -11,7 +11,7 @@ describe("CreateUserUseCase", () => {
 
   beforeEach(() => {
     userRepository = new InMemoryUserRepository();
-    Registy.getInstance().setUserRepository(userRepository);
+    Registry.getInstance().setUserRepository(userRepository);
     createUserUseCase = new CreateUserUseCase();
   });
 

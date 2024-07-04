@@ -1,7 +1,7 @@
 import type { UserRepository } from "../bondaries/user-repository";
 import { User } from "../entities/user";
 import { UserAlreadyExistsException } from "../exceptions/user-already-exists-exception";
-import { Registy } from "../registry/registry";
+import { Registry } from "../registry/registry";
 
 type Input = {
   name: string;
@@ -16,7 +16,7 @@ export class CreateUserUseCase {
   private userRepository: UserRepository;
 
   public constructor() {
-    this.userRepository = Registy.getInstance().getUserRepository();
+    this.userRepository = Registry.getInstance().getUserRepository();
   }
 
   public async execute({ name, email }: Input): Promise<Output> {
