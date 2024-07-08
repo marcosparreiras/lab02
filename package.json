@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest run",
-    "migrate": "tsx ./database/schema.ts",
+    "migrate": "tsx ./database/migrate.ts",
     "dev": "tsx watch --env-file=.env ./src/http/server.ts"
   },
   "keywords": [],
@@ -18,8 +18,9 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
+    "@types/pg": "^8.11.6",
     "fastify": "^4.28.1",
-    "postgres": "^3.4.4",
+    "pg": "^8.12.0",
     "zod": "^3.23.8"
   }
 }

@@ -1,14 +1,17 @@
 import type { UserRepository } from "../bondaries/user-repository";
 import { User } from "../entities/user";
-import postgres from "postgres";
+
+export interface Sql {
+  query(instruction: string, params: any[]): Promise<any>;
+}
 
 export class SqlUserRepository implements UserRepository {
-  private connectionUrl = "postgres://admin:admin@localhost:5432/my_db";
+  public constructor(readonly sql: Sql) {}
 
   async findById(id: string): Promise<User | null> {
-    const sql = postgres(this.connectionUrl);
-    const result = await sql`SELECT * FROM users WHERE id = ${id}`;
-    sql.end();
+    const result = await this.sql.query("SELECT * FROM users WHERE id = $1", [
+      id,
+    ]);
     if (result.length === 0) {
       return null;
     }
@@ -16,9 +19,11 @@ export class SqlUserRepository implements UserRepository {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const sql = postgres(this.connectionUrl);
-    const result = await sql`SELECT * FROM users WHERE email = ${email}`;
-    sql.end();
+    const result = await this.sql.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
+
     if (result.length === 0) {
       return null;
     }
@@ -26,8 +31,9 @@ export class SqlUserRepository implements UserRepository {
   }
 
   async save(user: User): Promise<void> {
-    const sql = postgres(this.connectionUrl);
-    await sql`INSERT INTO users(id, name, email) VALUES(${user.getId()}, ${user.getName()}, ${user.getEmail()})`;
-    sql.end();
+    await this.sql.query(
+      "INSERT INTO users(id, name, email) VALUES($1, $2, $3)",
+      [user.getId(), user.getName(), user.getEmail()]
+    );
   }
 }
