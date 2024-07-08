@@ -58,6 +58,12 @@ describe("POST /users", () => {
     };
     const response = await request(app.server).post("/users").send(data);
     expect(response.status).toEqual(400);
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        message: expect.any(String),
+      })
+    );
+
     const databaseQuery = await databaseConnection.query(
       "SELECT * FROM users WHERE name = $1",
       [data.name]

@@ -10,6 +10,6 @@ export async function getUserController(app: FastifyInstance) {
     const { id } = requestParamsSchema.parse(request.params);
     const getUserUseCase = new GetUserUseCase();
     const user = await getUserUseCase.execute({ userId: id });
-    return reply.status(201).send({ user });
+    return reply.status(200).send({ user });
   });
 }
