@@ -6,7 +6,10 @@ import { getUserController } from "./routes/get-user-controller";
 import { errorHandler } from "./middlewares/error-handles";
 import { PostgresSQL } from "../adapters/postgres-sql";
 
-const postgresSQL = new PostgresSQL();
+const postgresSQL = new PostgresSQL(
+  "postgres://admin:admin@localhost:5432/my_db"
+);
+
 const userRepository = new SqlUserRepository(postgresSQL);
 Registry.getInstance().setUserRepository(userRepository);
 

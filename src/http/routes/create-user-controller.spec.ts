@@ -1,25 +1,27 @@
 import { app } from "../app";
 import request from "supertest";
-import { Client } from "pg";
+import { PostgresSQL } from "../../adapters/postgres-sql";
 import { randomUUID } from "crypto";
 
 describe("POST /users", () => {
-  let databaseConnection: Client;
+  let sql: PostgresSQL;
+
   beforeAll(async () => {
     await app.ready();
-    databaseConnection = new Client(
-      "postgres://admin:admin@localhost:5432/my_db"
-    );
-    await databaseConnection.connect();
+    sql = new PostgresSQL("postgres://admin:admin@localhost:5432/my_db");
+    await sql.query("DELETE FROM users", []);
   });
 
   beforeEach(async () => {
-    await databaseConnection.query("DELETE FROM users");
+    await sql.query("BEGIN", []);
+  });
+
+  afterEach(async () => {
+    await sql.query("ROLLBACK", []);
   });
 
   afterAll(async () => {
     await app.close();
-    await databaseConnection.end();
   });
 
   it("Should be able to create a user", async () => {
@@ -32,12 +34,11 @@ describe("POST /users", () => {
 
     expect(response.status).toEqual(201);
 
-    const databaseQuery = await databaseConnection.query(
-      "SELECT * FROM users WHERE id = $1",
-      [response.body?.userId]
-    );
+    const databaseQuery = await sql.query("SELECT * FROM users WHERE id = $1", [
+      response.body?.userId,
+    ]);
 
-    expect(databaseQuery.rows[0]).toEqual(
+    expect(databaseQuery[0]).toEqual(
       expect.objectContaining({
         name: "John Doe",
         email: "johndoe@example.com",
@@ -48,10 +49,11 @@ describe("POST /users", () => {
 
   it("Should not be able to create a user with duplicate email", async () => {
     const email = "johndoe@example.com";
-    await databaseConnection.query(
-      "INSERT INTO users(id, name, email) VALUES($1, $2, $3)",
-      [randomUUID(), "John Doe", email]
-    );
+    await sql.query("INSERT INTO users(id, name, email) VALUES($1, $2, $3)", [
+      randomUUID(),
+      "John Doe",
+      email,
+    ]);
     const data = {
       name: "Jany Doe",
       email,
@@ -64,10 +66,10 @@ describe("POST /users", () => {
       })
     );
 
-    const databaseQuery = await databaseConnection.query(
+    const databaseQuery = await sql.query(
       "SELECT * FROM users WHERE name = $1",
       [data.name]
     );
-    expect(databaseQuery.rows).toHaveLength(0);
+    expect(databaseQuery).toHaveLength(0);
   });
 });
